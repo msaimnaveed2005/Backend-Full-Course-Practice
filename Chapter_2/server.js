@@ -1,5 +1,5 @@
 //URL->http://localhost:8383
-//IP->138.199.21.208:8383
+//IP->127.0.0.1:8383
 const express=require('express');
 const app=express();
 const PORT=8383;
@@ -14,17 +14,18 @@ let data = {
 app.get('/', (req,res)=>{
   //This is endpoint number 1 - /
   console.log('Yay I hit an endpoint',req.method)
-  res.sendStatus(201)
+   res.send('<h1>Homepage</h1>')
 })
 
 app.get('/dashboard', (req,res)=>{
-    console.log('Yay I hit an endpoint /dashboard',req.method)
-    res.send('hi')
+    res.send('<h1>Dashboard</h1>')
 })
 
-// Type 2 - API - Endpoints
+// Type 2 - API Endpoints (non-visual data)
+
+
 app.get('/api/data', (req,res)=>{
-    console.log('Yay I hit an endpoint /api/data',req.method)
+    console.log('This one was for data')
     res.send(data)
 })
 

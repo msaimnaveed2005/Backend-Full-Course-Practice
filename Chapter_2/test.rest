@@ -1,6 +1,6 @@
 ### TEST GET / WEBSITE
-
-GET http://localhost:8383/ HTTP/1.1
+// Emulates a browser or user
+GET http://localhost:8383/
 
 
 ### TEST GET/dashboard WEBSITE
