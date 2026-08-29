@@ -1,0 +1,109 @@
+nvm Windows Notes for This PC
+
+Problem
+- This PC uses a Windows username with a space:
+  C:\Users\SHARJAH LAPTOPS
+- nvm-windows can break because the path gets split at the space and Node activation fails.
+- The error usually looks like:
+  activation error: exit status 1: 'C:\Users\SHARJAH' is not recognized as an internal or external command
+
+Root Cause
+- The username contains a space.
+- NVM path parsing does not handle the long path properly in this setup.
+- The safe fix is to use the Windows short 8.3 path instead of the long user profile path.
+
+Step 1: Check the short user directory name
+Open PowerShell and run:
+
+cmd /c dir /x "C:\Users"
+
+Expected output includes something like:
+
+SHARJA~1   SHARJAH LAPTOPS
+
+So the short path is:
+C:\Users\SHARJA~1
+
+Step 2: Set temporary environment variables
+Run this in PowerShell:
+
+$env:NVM_HOME = 'C:\Users\SHARJA~1\AppData\Local\nvm'
+$env:NVM_SYMLINK = 'C:\nvm4w\nodejs'
+$env:Path = "$env:NVM_HOME;$env:NVM_SYMLINK;$env:Path"
+
+Then confirm:
+
+echo $env:NVM_HOME
+echo $env:NVM_SYMLINK
+
+Step 3: Use a Node version
+Run:
+
+nvm list
+nvm use 24.20.0
+
+If it works, you should see:
+Now using node v24.20.0 (64-bit)
+
+Step 4: Verify Node
+Run:
+
+node -v
+
+Expected result:
+v24.20.0
+
+Step 5: If the command fails again
+Check PATH for any values still using the long profile path:
+
+$env:Path -split ';' | Select-String 'Users|nvm|nodejs'
+
+Remove any entries containing:
+C:\Users\SHARJAH LAPTOPS
+
+Then set the environment again:
+
+$env:NVM_HOME = 'C:\Users\SHARJA~1\AppData\Local\nvm'
+$env:NVM_SYMLINK = 'C:\nvm4w\nodejs'
+$env:Path = "$env:NVM_HOME;$env:NVM_SYMLINK;$env:Path"
+
+Run:
+
+nvm use 24.20.0
+node -v
+
+Step 6: Make it permanent
+Use:
+
+setx NVM_HOME "C:\Users\SHARJA~1\AppData\Local\nvm"
+setx NVM_SYMLINK "C:\nvm4w\nodejs"
+
+Then close and reopen PowerShell.
+
+After reopening:
+
+nvm use 24.20.0
+node -v
+
+Important Notes
+- Do not keep the long path in PATH:
+  C:\Users\SHARJAH LAPTOPS\AppData\Local\nvm
+- Always prefer the short path:
+  C:\Users\SHARJA~1\AppData\Local\nvm
+- This is the safest fix for the current PC without changing the Windows user account.
+
+Long-term Best Fix
+- The cleanest permanent fix is to create a Windows user account without spaces in the username.
+- Example: shjah or shjah_laptops
+- Then reinstall nvm-windows and use Node there.
+
+Quick Working Setup
+Use this copy-paste block:
+
+$env:NVM_HOME = 'C:\Users\SHARJA~1\AppData\Local\nvm'
+$env:NVM_SYMLINK = 'C:\nvm4w\nodejs'
+$env:Path = "$env:NVM_HOME;$env:NVM_SYMLINK;$env:Path"
+nvm use 24.20.0
+node -v
+
+This is the working setup for the current issue.
